@@ -19,7 +19,7 @@ class NewVisitorTest(unittest.TestCase):
 
     def test_can_start_a_list_and_retrieve_it_later(self) -> None:
         self.visit_homepage()
-        self.check_page_title_contains('To-Do')
+        self.check_page_title_contains(TO_DO)
         self.check_header_contains(TO_DO)
         self.check_placeholder_contains(PLACE_HOLDER)
         self.enter_new_item(NEW_ITEM_TEXT)
@@ -43,7 +43,7 @@ class NewVisitorTest(unittest.TestCase):
         self.assertEqual(placeholder, search_text)
 
     def get_input_box(self):
-        return self.browser.find_element(By.ID, 'new_item')
+        return self.browser.find_element(By.ID, 'new-item')
 
     def enter_new_item(self, new_item_text):
         self.get_input_box().send_keys(new_item_text)
@@ -53,10 +53,13 @@ class NewVisitorTest(unittest.TestCase):
 
     def check_item_present(self, item_text):
         todos = self.get_todos()
-        self.assertTrue(any(todo.text == item_text for todo in todos))
+        self.assertTrue(
+            any(todo.text == item_text for todo in todos),
+            f'to-do item "{item_text}" not present!'
+        )
 
     def get_todos(self):
-        todos = self.browser.find_element('todos-table')
+        todos = self.browser.find_element(By.ID, 'todos-table')
         return todos.find_elements(By.TAG_NAME, 'tr')
 
     # Enter a new to-do item
