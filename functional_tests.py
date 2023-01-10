@@ -5,6 +5,7 @@ from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 
 NEW_ITEM_TEXT = 'Buy peacock feathers'
+ANOTHER_NEW_ITEM = 'Use peacock feathers to make a fly'
 PLACE_HOLDER = 'Enter a to-do item'
 TO_DO = "To-Do"
 
@@ -25,6 +26,10 @@ class NewVisitorTest(unittest.TestCase):
         self.enter_new_item(NEW_ITEM_TEXT)
         self.press_enter()
         self.check_item_present(NEW_ITEM_TEXT)
+        self.enter_new_item(ANOTHER_NEW_ITEM)
+        self.press_enter()
+        self.check_item_present(NEW_ITEM_TEXT)
+        self.check_item_present(ANOTHER_NEW_ITEM)
 
         self.fail('Finish the test!')
 
@@ -53,10 +58,11 @@ class NewVisitorTest(unittest.TestCase):
 
     def check_item_present(self, item_text):
         todos = self.get_todos()
-        self.assertTrue(
-            any(todo.text == item_text for todo in todos),
-            f'to-do item "{item_text}" not present!'
-        )
+        self.assertIn(item_text, [todo.text for todo in todos])
+        # self.assertTrue(
+        #     any(todo.text == item_text for todo in todos),
+        #     f'to-do item "{item_text}" not present!'
+        # )
 
     def get_todos(self):
         todos = self.browser.find_element(By.ID, 'todos-table')

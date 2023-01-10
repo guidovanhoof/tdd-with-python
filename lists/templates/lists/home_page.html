@@ -6,10 +6,15 @@
 </head>
 <body>
     <h1>Your To-Do list</h1>
-    <label for="new-item">Add to-do item:</label>
-    <input id="new-item" type="text" placeholder="Enter a to-do item">
-<table id="todos-table">
-
-</table>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="new-item">Add to-do item:</label>
+        <input id="new-item" name="new-item" type="text" placeholder="Enter a to-do item">
+    </form>
+    <table id="todos-table">
+        <tr>
+            <td>{{ new_item }}</td>
+        </tr>
+    </table>
 </body>
 </html>

@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.urls import resolve
 
 from lists.views import home_page
+from utils.html import remove_csfr
 
 
 # Create your tests here.
@@ -13,9 +14,32 @@ class HomePageTest(TestCase):
 
         self.assertEqual(found.func, home_page)
 
-    def test_root_url_returns_correct_html(self):
+    def test_home_page_returns_correct_html(self):
         request = HttpRequest()
-        response = home_page(request)
-        expected_html = render_to_string('lists/home_page.html')
 
-        self.assertEqual(response.content.decode(), expected_html)
+        response = home_page(request)
+
+        expected_html = render_to_string('lists/home_page.html', request=request)
+        self.assertEqual(
+            remove_csfr(response.content.decode()),
+            remove_csfr(expected_html),
+            'html for home page not correct!'
+        )
+
+    def test_home_page_can_save_a_post_request(self):
+        new_item = 'A new todo-item'
+        request = HttpRequest()
+        request.method = 'POST'
+        request.POST['new-item'] = new_item
+
+        response = home_page(request)
+
+        self.assertIn(new_item, response.content.decode())
+        expected_html = render_to_string(
+            'lists/home_page.html',
+            {'new_item': new_item}
+        )
+        self.assertEqual(
+            remove_csfr(response.content.decode()),
+            remove_csfr(expected_html)
+        )
