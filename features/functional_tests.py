@@ -1,4 +1,4 @@
-import unittest
+from django.test import LiveServerTestCase
 
 from selenium import webdriver
 from selenium.webdriver import Keys
@@ -10,7 +10,7 @@ PLACE_HOLDER = 'Enter a to-do item'
 TO_DO = "To-Do"
 
 
-class NewVisitorTest(unittest.TestCase):
+class NewVisitorTest(LiveServerTestCase):
     def setUp(self) -> None:
         self.browser = webdriver.Chrome()
         self.browser.implicitly_wait(3)
@@ -34,7 +34,7 @@ class NewVisitorTest(unittest.TestCase):
         self.fail('Finish the test!')
 
     def visit_homepage(self) -> None:
-        self.browser.get('http://localhost:8000')
+        self.browser.get(self.live_server_url)
 
     def check_page_title_contains(self, search_text) -> None:
         self.assertIn(search_text, self.browser.title)
@@ -81,7 +81,3 @@ class NewVisitorTest(unittest.TestCase):
     # Visit home page again
 
     # all the to-do items are still present
-
-
-if __name__ == '__main__':
-    unittest.main(warnings='ignore')
