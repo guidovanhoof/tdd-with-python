@@ -12,9 +12,11 @@
         <input id="new-item" name="new-item" type="text" placeholder="Enter a to-do item">
     </form>
     <table id="todos-table">
-        <tr>
-            <td>{{ new_item }}</td>
-        </tr>
+        {% for todo in todos %}
+            <tr>
+                <td>{{ todo.text }}</td>
+            </tr>
+        {% endfor %}
     </table>
 </body>
 </html>

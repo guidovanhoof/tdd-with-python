@@ -35,15 +35,32 @@ class HomePageTest(TestCase):
 
         response = home_page(request)
 
-        self.assertIn(new_item, response.content.decode())
-        expected_html = render_to_string(
-            'lists/home_page.html',
-            {'new_item': new_item}
-        )
-        self.assertEqual(
-            remove_csfr(response.content.decode()),
-            remove_csfr(expected_html)
-        )
+        self.assertInDatabase(new_item)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/')
+
+    def assertInDatabase(self, new_item):
+        self.assertEqual(TodoItem.objects.count(), 1)
+        saved_item = TodoItem.objects.first()
+        self.assertEqual(saved_item.text, new_item)
+
+    def test_home_page_only_save_todo_item_when_necessary(self):
+        request = HttpRequest()
+
+        response = home_page(request)
+
+        self.assertEqual(TodoItem.objects.count(), 0)
+
+    def test_home_page_displays_all_items(self):
+        TodoItem.objects.create(text='to-do item 1')
+        TodoItem.objects.create(text='to-do item 2')
+        request = HttpRequest()
+
+        response = home_page(request)
+
+        self.assertIn('to-do item 1', response.content.decode())
+        self.assertIn('to-do item 2', response.content.decode())
 
 
 class TodoItemModelTest(TestCase):
