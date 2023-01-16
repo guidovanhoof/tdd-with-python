@@ -25,11 +25,24 @@ class NewVisitorTest(LiveServerTestCase):
         self.check_placeholder_contains(PLACE_HOLDER)
         self.enter_new_item(NEW_ITEM_TEXT)
         self.press_enter()
+        self.check_list_url()
         self.check_item_present(NEW_ITEM_TEXT)
         self.enter_new_item(ANOTHER_NEW_ITEM)
         self.press_enter()
         self.check_item_present(NEW_ITEM_TEXT)
         self.check_item_present(ANOTHER_NEW_ITEM)
+        self.browser.quit()
+
+        self.browser = webdriver.chrome
+
+        self.visit_homepage()
+        self.check_item_not_present(NEW_ITEM_TEXT)
+        self.check_item_not_present(ANOTHER_NEW_ITEM)
+        self.enter_new_item('Buy milk')
+        self.press_enter()
+        self.check_list_url()
+        self.check_item_not_present(NEW_ITEM_TEXT)
+        self.check_item_not_present(ANOTHER_NEW_ITEM)
 
         self.fail('Finish the test!')
 
@@ -56,6 +69,10 @@ class NewVisitorTest(LiveServerTestCase):
     def press_enter(self):
         self.get_input_box().send_keys(Keys.ENTER)
 
+    def check_list_url(self):
+        list_url = self.browser.current_url
+        self.assertRegex(list_url, '/lists/.+')
+
     def check_item_present(self, item_text):
         todos = self.get_todos()
         self.assertIn(item_text, [todo.text for todo in todos])
@@ -64,20 +81,11 @@ class NewVisitorTest(LiveServerTestCase):
         #     f'to-do item "{item_text}" not present!'
         # )
 
+    def check_item_not_present(self, item_text):
+        todos = self.get_todos()
+        self.assertNotIn(item_text, [todo.text for todo in todos])
+
     def get_todos(self):
         todos = self.browser.find_element(By.ID, 'todos-table')
         return todos.find_elements(By.TAG_NAME, 'tr')
 
-    # Enter a new to-do item
-
-    # Press Enter
-
-    # New to-do item is visible in to-do list
-
-    # Enter a second to-do item
-
-    # Leave the homepage
-
-    # Visit home page again
-
-    # all the to-do items are still present
