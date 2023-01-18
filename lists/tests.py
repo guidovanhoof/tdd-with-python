@@ -3,9 +3,11 @@ from django.template.loader import render_to_string
 from django.test import TestCase
 from django.urls import resolve
 
-from lists.models import TodoItem
+from lists.models import TodoItem, List
 from lists.views import home_page
 from utils.html import remove_csfr
+
+ITEM = 'A new todo-item'
 
 
 # Create your tests here.
@@ -27,55 +29,73 @@ class HomePageTest(TestCase):
             'html for home page not correct!'
         )
 
-    def test_home_page_can_save_a_post_request(self):
-        new_item = 'A new todo-item'
-        request = HttpRequest()
-        request.method = 'POST'
-        request.POST['new-item'] = new_item
 
-        response = home_page(request)
-
-        self.assertInDatabase(new_item)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/')
-
-    def assertInDatabase(self, new_item):
-        self.assertEqual(TodoItem.objects.count(), 1)
-        saved_item = TodoItem.objects.first()
-        self.assertEqual(saved_item.text, new_item)
-
-    def test_home_page_only_save_todo_item_when_necessary(self):
-        request = HttpRequest()
-
-        response = home_page(request)
-
-        self.assertEqual(TodoItem.objects.count(), 0)
-
-    def test_home_page_displays_all_items(self):
-        TodoItem.objects.create(text='to-do item 1')
-        TodoItem.objects.create(text='to-do item 2')
-        request = HttpRequest()
-
-        response = home_page(request)
-
-        self.assertIn('to-do item 1', response.content.decode())
-        self.assertIn('to-do item 2', response.content.decode())
-
-
-class TodoItemModelTest(TestCase):
+class TodoItemAndListModelTest(TestCase):
     def test_saving_and_retrieving_todo_items(self):
+        list_ = List()
+        list_.save()
+
         first_item = TodoItem()
         first_item.text = 'The first (ever) todo item'
+        first_item.list = list_
         first_item.save()
 
         second_item = TodoItem()
         second_item.text = 'The second todo item'
+        second_item.list = list_
         second_item.save()
 
+        saved_list = List.objects.first()
+        self.assertEqual(saved_list, list_)
+
         saved_items = TodoItem.objects.all()
-
         self.assertEqual(saved_items.count(), 2)
-        self.assertIn(first_item, saved_items)
-        self.assertIn(second_item, saved_items)
 
+        self.assertIn(first_item, saved_items)
+        self.assertEqual(first_item.list, list_)
+        self.assertIn(second_item, saved_items)
+        self.assertEqual(second_item.list, list_)
+
+
+class ListViewTest(TestCase):
+    def test_displays_all_items(self):
+        todo_list = List.objects.create()
+        TodoItem.objects.create(text='to-do item 1', list=todo_list)
+        TodoItem.objects.create(text='to-do item 2', list=todo_list)
+        request = HttpRequest()
+
+        response = self.client.get('/lists/the-only-list-in-the-world/')
+
+        self.assertContains(response, 'to-do item 1')
+        self.assertContains(response, 'to-do item 2')
+
+    def test_uses_list_template(self):
+        response = self.client.get('/lists/the-only-list-in-the-world/')
+
+        self.assertTemplateUsed(response, 'lists/list.html')
+
+
+class NewListTest(TestCase):
+    def test_can_save_a_post_request(self):
+        self.client.post(
+            '/lists/new/',
+            data={
+                'new-item': ITEM,
+            }
+        )
+
+        self.assertEqual(TodoItem.objects.count(), 1)
+        todo_item = TodoItem.objects.first()
+        self.assertEqual(todo_item.text, ITEM)
+
+    def test_redirects_after_post(self):
+        response = self.client.post(
+            '/lists/new/',
+            data={
+                'new-item': ITEM,
+            }
+        )
+
+        # self.assertEqual(response.status_code, 302)
+        # self.assertEqual(response['location'], '/lists/the-only-list-in-the-world/')
+        self.assertRedirects(response, '/lists/the-only-list-in-the-world/')

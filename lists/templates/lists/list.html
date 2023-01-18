@@ -11,5 +11,12 @@
         <label for="new-item">Add to-do item:</label>
         <input id="new-item" name="new-item" type="text" placeholder="Enter a to-do item">
     </form>
+    <table id="todos-table">
+        {% for todo in todos %}
+            <tr>
+                <td>{{ todo.text }}</td>
+            </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>
