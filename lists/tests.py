@@ -58,19 +58,25 @@ class TodoItemAndListModelTest(TestCase):
 
 
 class ListViewTest(TestCase):
-    def test_displays_all_items(self):
+    def test_displays_all_items_for_a_list(self):
         todo_list = List.objects.create()
         TodoItem.objects.create(text='to-do item 1', list=todo_list)
         TodoItem.objects.create(text='to-do item 2', list=todo_list)
-        request = HttpRequest()
+        other_todo_list = List.objects.create()
+        TodoItem.objects.create(text='other to-do item 1', list=other_todo_list)
+        TodoItem.objects.create(text='other to-do item 2', list=other_todo_list)
 
-        response = self.client.get('/lists/the-only-list-in-the-world/')
+        response = self.client.get(f'/lists/{todo_list.id}/')
 
         self.assertContains(response, 'to-do item 1')
         self.assertContains(response, 'to-do item 2')
+        self.assertNotContains(response, 'other to-do item 1')
+        self.assertNotContains(response, 'other to-do item 2')
 
     def test_uses_list_template(self):
-        response = self.client.get('/lists/the-only-list-in-the-world/')
+        todo_list = List.objects.create()
+
+        response = self.client.get(f'/lists/{todo_list.id}/')
 
         self.assertTemplateUsed(response, 'lists/list.html')
 
@@ -96,6 +102,7 @@ class NewListTest(TestCase):
             }
         )
 
+        todo_list = List.objects.first()
         # self.assertEqual(response.status_code, 302)
         # self.assertEqual(response['location'], '/lists/the-only-list-in-the-world/')
-        self.assertRedirects(response, '/lists/the-only-list-in-the-world/')
+        self.assertRedirects(response, f'/lists/{todo_list.id}/')
