@@ -71,7 +71,6 @@ class NewVisitorTest(LiveServerTestCase):
 
     def check_list_url(self):
         list_url = self.browser.current_url
-        print(f'list_url = {list_url}')
         self.assertRegex(list_url, '/lists/.+')
 
     def check_item_present(self, item_text):

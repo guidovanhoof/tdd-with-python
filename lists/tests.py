@@ -80,6 +80,12 @@ class ListViewTest(TestCase):
 
         self.assertTemplateUsed(response, 'lists/list.html')
 
+    def test_passes_correct_list_to_template(self):
+        todo_list = List.objects.create()
+
+        response = self.client.get(f'/lists/{todo_list.id}/')
+
+        self.assertEqual(response.context['list'], todo_list)
 
 class NewListTest(TestCase):
     def test_can_save_a_post_request(self):
@@ -105,4 +111,33 @@ class NewListTest(TestCase):
         todo_list = List.objects.first()
         # self.assertEqual(response.status_code, 302)
         # self.assertEqual(response['location'], '/lists/the-only-list-in-the-world/')
+        self.assertRedirects(response, f'/lists/{todo_list.id}/')
+
+
+class NewItemTest(TestCase):
+    def test_can_add_new_item_to_an_existing_list(self):
+        todo_list = List.objects.create()
+
+        self.client.post(
+            f'/lists/{todo_list.id}/create/',
+            data={
+                'new-item': ITEM
+            }
+        )
+
+        self.assertEqual(TodoItem.objects.count(), 1)
+        todo_item = TodoItem.objects.first()
+        self.assertEqual(todo_item.text, ITEM)
+        self.assertEqual(todo_item.list, todo_list)
+
+    def test_redirects_to_list_view(self):
+        todo_list = List.objects.create()
+
+        response = self.client.post(
+            f'/lists/{todo_list.id}/create/',
+            data={
+                'new-item': ITEM
+            }
+        )
+
         self.assertRedirects(response, f'/lists/{todo_list.id}/')

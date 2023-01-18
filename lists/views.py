@@ -16,7 +16,10 @@ def view_list(request, list_id):
     return render(
         request,
         'lists/list.html',
-        {'todos': TodoItem.objects.filter(list=todo_list)}
+        {
+            'todos': TodoItem.objects.filter(list=todo_list),
+            'list': todo_list,
+        }
     )
 
 
@@ -29,3 +32,15 @@ def new_list(request):
             list=todo_list
         )
     return redirect(f'/lists/{todo_list.id}/')
+
+
+def create_list(request, list_id):
+    todo_list = List.objects.get(id=list_id)
+    if request.method == 'POST':
+        new_item = request.POST.get('new-item', '')
+        TodoItem.objects.create(
+            text=new_item,
+            list=todo_list
+        )
+    return redirect(f'/lists/{todo_list.id}/')
+
