@@ -89,3 +89,12 @@ class NewVisitorTest(LiveServerTestCase):
         todos = self.browser.find_element(By.ID, 'todos-table')
         return todos.find_elements(By.TAG_NAME, 'tr')
 
+    def test_layout_and_styling(self):
+        self.visit_homepage()
+        self.browser.set_window_size(1024, 768)
+        input_box = self.get_input_box()
+        self.assertAlmostEqual(
+            input_box.location['x'] + input_box.size['width'] / 2,
+            561,
+            delta=5
+        )
