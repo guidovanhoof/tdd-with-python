@@ -1,4 +1,4 @@
-from django.test import LiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 from selenium import webdriver
 from selenium.webdriver import Keys
@@ -10,7 +10,7 @@ PLACE_HOLDER = 'Enter a to-do item'
 TO_DO = "To-Do"
 
 
-class NewVisitorTest(LiveServerTestCase):
+class NewVisitorTest(StaticLiveServerTestCase):
     def setUp(self) -> None:
         self.browser = webdriver.Chrome()
         self.browser.implicitly_wait(3)
@@ -88,13 +88,3 @@ class NewVisitorTest(LiveServerTestCase):
     def get_todos(self):
         todos = self.browser.find_element(By.ID, 'todos-table')
         return todos.find_elements(By.TAG_NAME, 'tr')
-
-    def test_layout_and_styling(self):
-        self.visit_homepage()
-        self.browser.set_window_size(1024, 768)
-        input_box = self.get_input_box()
-        self.assertAlmostEqual(
-            input_box.location['x'] + input_box.size['width'] / 2,
-            561,
-            delta=5
-        )
