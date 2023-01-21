@@ -1,3 +1,5 @@
+import sys
+
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 from selenium import webdriver
@@ -11,6 +13,20 @@ TO_DO = "To-Do"
 
 
 class NewVisitorTest(StaticLiveServerTestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        for arg in sys.argv:
+            if 'liveserver' in arg:
+                cls.server_url = f"http://{arg.split('=')[1]}"
+                return
+        super().setUpClass()
+        cls.server_url = cls.live_server_url
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        if cls.server_url == cls.live_server_url:
+            super().tearDownClass()
+
     def setUp(self) -> None:
         self.browser = webdriver.Chrome()
         self.browser.implicitly_wait(3)
@@ -44,10 +60,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.check_item_not_present(NEW_ITEM_TEXT)
         self.check_item_not_present(ANOTHER_NEW_ITEM)
 
-        self.fail('Finish the test!')
-
     def visit_homepage(self) -> None:
-        self.browser.get(self.live_server_url)
+        self.browser.get(self.server_url)
 
     def check_page_title_contains(self, search_text) -> None:
         self.assertIn(search_text, self.browser.title)
@@ -88,3 +102,12 @@ class NewVisitorTest(StaticLiveServerTestCase):
     def get_todos(self):
         todos = self.browser.find_element(By.ID, 'todos-table')
         return todos.find_elements(By.TAG_NAME, 'tr')
+
+    def test_layout_and_styling(self):
+        self.visit_homepage()
+        bootstrap_class = self.get_input_box().get_attribute('class')
+
+        self.assertEqual(
+            bootstrap_class,
+            'form-control-lg'
+        )
