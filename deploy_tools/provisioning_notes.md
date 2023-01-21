@@ -29,15 +29,9 @@ eg, on Ubuntu
 Assume we have a user account at /home/username
 
 /home/username  
- |  
  +-- sites  
-     |  
-     +-- SITENAME  
-         |  
-         +-- database   
-         |  
-         +-- source  
-         |  
-         +-- static  
-         |  
-         +-- virtuanenv  
+     &ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;+-- SITENAME  
+         &ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;+-- database   
+         &ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;+-- source  
+         &ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;+-- static  
+         &ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;&ensp;&thinsp;+-- virtuanenv  
